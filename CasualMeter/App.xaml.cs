@@ -56,33 +56,34 @@ namespace CasualMeter
 
         private static async Task Update()
         {
-            try
-            {
-                using (var mgr = new UpdateManager("http://lunyx.net/CasualMeter"))
-                {
-                    Logger.Info("Checking for updates.");
-                    if (mgr.IsInstalledApp)
-                    {
-                        Logger.Info($"Current Version: v{mgr.CurrentlyInstalledVersion()}");
-                        var updates = await mgr.CheckForUpdate();
-                        if (updates.ReleasesToApply.Any())
-                        {
-                            Logger.Info("Updates found. Applying updates.");
-                            var release = await mgr.UpdateApp();
+            Logger.Info("Try to update.");
+            //try
+            //{
+            //    using (var mgr = new UpdateManager("http://lunyx.net/CasualMeter"))
+            //    {
+            //        Logger.Info("Checking for updates.");
+            //        if (mgr.IsInstalledApp)
+            //        {
+            //            Logger.Info($"Current Version: v{mgr.CurrentlyInstalledVersion()}");
+            //            var updates = await mgr.CheckForUpdate();
+            //            if (updates.ReleasesToApply.Any())
+            //            {
+            //                Logger.Info("Updates found. Applying updates.");
+            //                var release = await mgr.UpdateApp();
 
-                            MessageBox.Show(CleanReleaseNotes(release.GetReleaseNotes(Path.Combine(mgr.RootAppDirectory, "packages"))),
-                                $"Casual Meter Update - v{release.Version}");
+            //                MessageBox.Show(CleanReleaseNotes(release.GetReleaseNotes(Path.Combine(mgr.RootAppDirectory, "packages"))),
+            //                    $"Casual Meter Update - v{release.Version}");
 
-                            Logger.Info("Updates applied. Restarting app.");
-                            UpdateManager.RestartApp();
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {   //log exception and move on
-                HandleException(e);
-            }
+            //                Logger.Info("Updates applied. Restarting app.");
+            //                UpdateManager.RestartApp();
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception e)
+            //{   //log exception and move on
+            //    HandleException(e);
+            //}
         }
 
         private static void HandleException(Exception e)

@@ -1,12 +1,17 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace CasualMeter.Common.Formatters
 {
     public class Formatter
     {
+        private static readonly ILog Logger = LogManager.GetLogger(
+            MethodBase.GetCurrentMethod().DeclaringType);
+
         protected Dictionary<string, object> Placeholders;
         protected IFormatProvider FormatProvider;
 
@@ -18,18 +23,34 @@ namespace CasualMeter.Common.Formatters
             FormatProvider = formatProvider;
         }
 
-        private string ReplacePlaceHolder(string[] parts)
+        private string ReplacePlaceHolder(string[] parts, bool containsAlignment)
         {
+            if (parts.Length > 3)
+                throw new FormatException("Too many parts in a place holder");
             var key = parts[0];
             string format = null;
-            if (parts.Length > 2)
-                throw new FormatException("Too many parts in a place holder");
-            if (parts.Length == 2)
-                format = parts[1];
+            string alignment = null;
+            if (parts.Length > 1)
+            {
+                if (containsAlignment)
+                {
+                    alignment = parts[1];
+                    if (parts.Length == 3)
+                        format = parts[2];
+                }
+                else
+                {
+                    format = parts[1];
+                }
+            }
             object value;
             if (!Placeholders.TryGetValue(key, out value))
-                throw new FormatException(string.Format("Unknown placeholder '{0}'", key));
-            return ToString(value, format, FormatProvider);
+            {
+                Logger.Warn(string.Format("Unknown placeholder '{0}'", key));
+                value = "-";
+            }
+            string result = ToString(value, format, FormatProvider);
+            return containsAlignment ? string.Format($"{{0,{alignment}}}", result) : result;
         }
 
         private static string ToString(object o, string format, IFormatProvider formatProvider)
@@ -45,10 +66,12 @@ namespace CasualMeter.Common.Formatters
             return Replace(input, ReplacePlaceHolder);
         }
 
-        private static string Replace(string input, Func<string[], string> placeHolderFunc)
+        private static string Replace(string input, Func<string[], bool, string> placeHolderFunc)
         {
             bool isEscape = false;
             bool isPlaceHolder = false;
+            bool isPlaceHolderAlignment = false;
+            bool isPlaceHolderFormat = false;
             var result = new StringBuilder();
             var placeHolderPart = new StringBuilder();
             var placeHolderParts = new List<string>();
@@ -61,16 +84,18 @@ namespace CasualMeter.Common.Formatters
                     {
                         case '{':
                             if (isPlaceHolder)
-                                throw new FormatException("Unxpected '{'");
+                                throw new FormatException("Unexpected '{'");
                             isPlaceHolder = true;
                             goto nextChar;
                         case '}':
                             if (!isPlaceHolder)
-                                throw new FormatException("Unxpected '}'");
+                                throw new FormatException("Unexpected '}'");
                             placeHolderParts.Add(placeHolderPart.ToString());
-                            result.Append(placeHolderFunc(placeHolderParts.ToArray()));
+                            result.Append(placeHolderFunc(placeHolderParts.ToArray(), isPlaceHolderAlignment));
                             placeHolderPart.Clear();
                             placeHolderParts.Clear();
+                            isPlaceHolderAlignment = false;
+                            isPlaceHolderFormat = false;
                             isPlaceHolder = false;
                             goto nextChar;
                         case '\\':
@@ -81,10 +106,21 @@ namespace CasualMeter.Common.Formatters
                                 goto printChar;
                             placeHolderParts.Add(placeHolderPart.ToString());
                             placeHolderPart.Clear();
+                            isPlaceHolderAlignment = false;
+                            isPlaceHolderFormat = true;
+                            goto nextChar;
+                        case ',':
+                            if (!isPlaceHolder || isPlaceHolderFormat)
+                                goto printChar;
+                            if (isPlaceHolderAlignment)
+                                throw new FormatException("Unexpected ','");
+                            isPlaceHolderAlignment = true;
+                            placeHolderParts.Add(placeHolderPart.ToString());
+                            placeHolderPart.Clear();
                             goto nextChar;
                     }
                 }
-            printChar:
+                printChar:
                 if (isPlaceHolder)
                     placeHolderPart.Append(c);
                 else

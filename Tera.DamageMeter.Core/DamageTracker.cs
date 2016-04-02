@@ -78,6 +78,12 @@ namespace Tera.DamageMeter
             set { SetProperty(value); }
         }
 
+        public SkillStats TotalReceived
+        {
+            get { return GetProperty(getDefault: () => new SkillStats()); }
+            set { SetProperty(value); }
+        }
+
         private PlayerInfo GetOrCreate(SkillResult skillResult)
         {
             NpcEntity npctarget = skillResult.Target as NpcEntity;
@@ -97,9 +103,24 @@ namespace Tera.DamageMeter
             {
                 playerStats = new PlayerInfo(player, this);
                 StatsByUser.Add(playerStats);
+                Logger.Info($"Add new player info of \"{player}\"");
             }
             return playerStats;
         }
+
+        private PlayerInfo GetOrCreateTarget(SkillResult skillResult)
+        {
+            var player = skillResult.TargetPlayer;
+            PlayerInfo playerStats = StatsByUser.FirstOrDefault(pi => pi.Player.Equals(player));
+            if (playerStats == null && (player.IsHealer ||//either healer
+               (!player.IsHealer && IsValidDamage(skillResult))))//or damage from non-healer
+            {
+                playerStats = new PlayerInfo(player, this);
+                StatsByUser.Add(playerStats);
+                Logger.Info($"Add new player info of \"{player}\"");
+             }
+             return playerStats;
+         }
 
         public void Update(SkillResult skillResult)
         {
@@ -118,7 +139,21 @@ namespace Tera.DamageMeter
                 playerStats.Dealt.Add(statsChange);
             }
 
-            if (IsValidAttack(skillResult))
+            if (skillResult.TargetPlayer != null)
+            {
+                var playerStats = GetOrCreateTarget(skillResult);
+                if (playerStats == null) return; //if this is null, that means we should ignore it
+                var statsChange = StatsChange(skillResult, false);
+                if (statsChange == null) Logger.Warn($"Generated null SkillStats from {skillResult}");
+                
+                playerStats.LogSkillUsage(skillResult);
+                
+                TotalReceived.Add(statsChange);
+                playerStats.Received.Add(statsChange);
+            }
+
+
+            if (IsValidAttack(skillResult) || IsValidDamage(skillResult))
             {
                 if (FirstAttack == null)
                     FirstAttack = skillResult.Time;
@@ -129,23 +164,31 @@ namespace Tera.DamageMeter
             foreach (var playerStat in StatsByUser)
             {   //force update of calculated dps metrics
                 playerStat.Dealt.UpdateStats();
+                playerStat.Received.UpdateStats();
             }
         }
 
         public bool IsFromHealer(SkillResult skillResult)
         {
-            return skillResult.SourcePlayer.IsHealer;
+            return skillResult.SourcePlayer != null && skillResult.SourcePlayer.IsHealer;
         }
 
         public bool IsValidAttack(SkillResult skillResult)
         {
-            return skillResult.SourcePlayer != null && (skillResult.Damage > 0) &&
+            return (skillResult.SourcePlayer != null) && (skillResult.Damage > 0) &&
                    (skillResult.Source.Id != skillResult.Target.Id);
         }
 
-        private SkillStats StatsChange(SkillResult message)
+        public bool IsValidDamage(SkillResult skillResult)
+        {
+            return (skillResult.TargetPlayer != null) && (skillResult.Damage > 0) &&
+                    (skillResult.Source.Id != skillResult.Target.Id);
+         }
+
+        private SkillStats StatsChange(SkillResult message, bool dealt = true)
         {
             var result = new SkillStats();
+            result.Dealt = dealt;
             if (message.Amount == 0)
                 return result;
             

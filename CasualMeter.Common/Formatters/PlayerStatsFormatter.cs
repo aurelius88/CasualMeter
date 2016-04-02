@@ -16,6 +16,8 @@ namespace CasualMeter.Common.Formatters
             placeHolders.Add(new KeyValuePair<string, object>("FullName", playerInfo.FullName));
             placeHolders.Add(new KeyValuePair<string, object>("Name", playerInfo.Name));
             placeHolders.Add(new KeyValuePair<string, object>("Class", playerInfo.Class));
+            placeHolders.Add(new KeyValuePair<string, object>("ClassAndName", "("+playerInfo.Class+") "+playerInfo.Name));
+            placeHolders.Add(new KeyValuePair<string, object>("NameAndClass", playerInfo.Name + " (" + playerInfo.Class + ")"));
 
             placeHolders.Add(new KeyValuePair<string, object>("Crits", playerInfo.Dealt.Crits));
             placeHolders.Add(new KeyValuePair<string, object>("Hits", playerInfo.Dealt.Hits));
@@ -24,8 +26,12 @@ namespace CasualMeter.Common.Formatters
             placeHolders.Add(new KeyValuePair<string, object>("CritPercent", formatHelpers.FormatPercent((double)playerInfo.Dealt.Crits / playerInfo.Dealt.Hits) ?? "NaN"));
 
             placeHolders.Add(new KeyValuePair<string, object>("Damage", formatHelpers.FormatValue(playerInfo.Dealt.Damage)));
-            placeHolders.Add(new KeyValuePair<string, object>("DamageReceived", formatHelpers.FormatValue(playerInfo.Received.Damage)));
             placeHolders.Add(new KeyValuePair<string, object>("DPS", $"{formatHelpers.FormatValue(SettingsHelper.Instance.Settings.ShowPersonalDps ? playerInfo.Dealt.PersonalDps : playerInfo.Dealt.Dps)}/s"));
+            placeHolders.Add(new KeyValuePair<string, object>("DamageReceived", formatHelpers.FormatValue(playerInfo.Received.Damage)));
+            placeHolders.Add(new KeyValuePair<string, object>("RDPS", $"{formatHelpers.FormatValue(SettingsHelper.Instance.Settings.ShowPersonalDps ? playerInfo.Received.PersonalDps : playerInfo.Received.Dps)}/s"));
+
+            placeHolders.Add(new KeyValuePair<string, object>("Heal", formatHelpers.FormatValue(playerInfo.Dealt.Heal)));
+            placeHolders.Add(new KeyValuePair<string, object>("HealReceived", formatHelpers.FormatValue(playerInfo.Received.Heal)));
 
             Placeholders = placeHolders.ToDictionary(x => x.Key, y => y.Value);
             FormatProvider = formatHelpers.CultureInfo;

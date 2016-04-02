@@ -7,11 +7,15 @@ using System.Linq;
 using System.Net;
 using NetworkSniffer;
 using Tera.Game;
+using System.Reflection;
+using log4net;
 
 namespace Tera.Sniffing
 {
     public class TeraSniffer : ITeraSniffer
     {
+        private static readonly ILog Logger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         // Only take this lock in callbacks from tcp sniffing, not in code that can be called by the user.
         // Otherwise this could cause a deadlock if the user calls such a method from a callback that already holds a lock
         private readonly object _eventLock = new object();
@@ -103,7 +107,8 @@ namespace Tera.Sniffing
                 if (_isNew.Contains(connection))
                 {
                     if (_serversByIp.ContainsKey(connection.Source.Address.ToString()) &&
-                        data.Array.Skip(data.Offset).Take(4).SequenceEqual(new byte[] { 1, 0, 0, 0 }))
+                        // set new connection if there isn't one set or a connect-to-server packet has been received
+                        (_serverToClient == null || data.Array.Skip(data.Offset).Take(4).SequenceEqual(new byte[] { 1, 0, 0, 0 })))
                     {
                         _isNew.Remove(connection);
                         var server = _serversByIp[connection.Source.Address.ToString()];

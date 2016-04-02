@@ -40,6 +40,7 @@
                                   IsLiveSortingRequested="True">
                 <CollectionViewSource.SortDescriptions>
                     <scm:SortDescription PropertyName="Dealt.Damage" Direction="Descending"/>
+                    <!--<scm:SortDescription PropertyName="Received.Damage" Direction="Descending"/>-->
                     <scm:SortDescription PropertyName="Dealt.Heal" Direction="Descending"/>
                     <scm:SortDescription PropertyName="Name" Direction="Ascending"/>
                 </CollectionViewSource.SortDescriptions>
@@ -94,6 +95,16 @@
                     Width="{StaticResource Width}">
                 <StackPanel Orientation="Vertical"
                             Style="{StaticResource PanelStyle}">
+                    <!--<Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0">Server</TextBlock>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding BasicTeraData.Servers}"
+                                  DisplayMemberPath="Name"
+                                  SelectedItem="{Binding Server, Mode=TwoWay}" />
+                    </Grid>-->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

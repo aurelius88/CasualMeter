@@ -1,14 +1,27 @@
 ﻿using System;
 using CasualMeter.Common.Conductors;
 using Lunyx.Common;
+using System.Runtime.InteropServices;
+using System.Reflection;
+using log4net;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace CasualMeter.Common.Helpers
 {
     public sealed class ProcessHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(
+            MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly Lazy<ProcessHelper> Lazy = new Lazy<ProcessHelper>(() => new ProcessHelper());
 
         public static ProcessHelper Instance => Lazy.Value;
+
+        private const UInt32 WM_KEYDOWN = 0x0100;
+
+        [DllImport("user32.dll")]
+        static extern bool PostMessage(IntPtr hWnd, UInt32 Msg, int wParam, int lParam);
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         private readonly ProcessInfo.WinEventDelegate _dele;//leave this here to prevent garbage collection
@@ -47,18 +60,40 @@ namespace CasualMeter.Common.Helpers
             UpdateHotKeys();
         }
 
+        public bool PressKey(Keys key, int delayBefore = 0, int delayAfter = 0)
+        {
+            if (TeraWindow == IntPtr.Zero)
+            {
+                Logger.Warn("Nullpointer of TeraWindow.");
+                return false;
+            }
+
+            Thread.Sleep(delayBefore);
+            if(PostMessage(TeraWindow, WM_KEYDOWN, (int)key, 0)) {
+                Thread.Sleep(delayAfter);
+                return true;
+            }
+
+            Logger.Warn(string.Format("Failed to press key {0}", key));
+            return false;
+        }
+
         public bool SendString(string s)
         {
             if (TeraWindow == IntPtr.Zero)
+            {
+                Logger.Warn("Nullpointer of TeraWindow.");
                 return false;
+            }
             try
             {
                 ProcessInfo.SendString(TeraWindow, s);
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 //eat this
+                Logger.Warn("Failed to send string:", e);
             }
             return false;
         }

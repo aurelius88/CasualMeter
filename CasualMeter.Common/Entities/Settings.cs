@@ -33,8 +33,32 @@ namespace CasualMeter.Common.Entities
         [DefaultValue(false)]
         public bool ShowPersonalDps { get; set; }
 
-        [DefaultValue("{Boss} {Time} : @{Name} {DPS} {DamagePercent}")]
+        [DefaultValue("Damage Done:")]
+        public string DpsPreHeader { get; set; }
+
+        [DefaultValue("(Class) Name               | DPS        | Damage     | Damage in %")]
+        public string DpsHeader { get; set; }
+
+        [DefaultValue("{ClassAndName,-26} | {DPS,-10} | {Damage,-10} | {DamagePercent,-10}")]
         public string DpsPasteFormat { get; set; }
+
+        [DefaultValue("Received Damage:")]
+        public string RcvPreHeader { get; set; }
+
+        [DefaultValue("(Class) Name               | Received Dmg | RDPS")]
+        public string RcvHeader { get; set; }
+
+        [DefaultValue("{ClassAndName,-26} | -{DamageReceived,-11} | -{RDPS}")]
+        public string RcvPasteFormat { get; set; }
+
+        [DefaultValue("Heal Done:")]
+        public string HealPreHeader { get; set; }
+
+        [DefaultValue("(Class) Name               | Heal       | Received Heal")]
+        public string HealHeader { get; set; }
+
+        [DefaultValue("{ClassAndName,-26} | {Heal,-10} | {HealReceived,-10}")]
+        public string HealPasteFormat { get; set; }
 
         [DefaultValue(30)]
         public int InactivityResetDuration { get; set; }

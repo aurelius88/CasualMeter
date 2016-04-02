@@ -9,11 +9,17 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tera.Data;
 using Tera.Game;
+using System.Reflection;
+using log4net;
 
 namespace CasualMeter.Common.Helpers
 {
     public sealed class SettingsHelper
     {
+
+        private static readonly ILog Logger = LogManager.GetLogger(
+            MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly Lazy<SettingsHelper> Lazy = new Lazy<SettingsHelper>(() => new SettingsHelper());
         
         public readonly BasicTeraData BasicTeraData;
@@ -59,21 +65,28 @@ namespace CasualMeter.Common.Helpers
         {
             if (File.Exists(ConfigFilePath))
             {   //load settings if the file exists
+                Logger.Info("Loading settings from file.");
                 try
                 {
                     Settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(ConfigFilePath),
                         _jsonSerializerSettings);
+                    Logger.Info("Loaded settings from file.");
                 }
-                catch (JsonSerializationException)
+                catch (JsonSerializationException e)
                 {
                     //someone fucked up their settings...
+                    Logger.Warn("Failed to deserialize file: ", e);
+                    Logger.Info("Loading default settings.");
                     Settings = new Settings();
                 }
             }
             else
             {   //no saved settings found
+                Logger.Warn("No saved settings found.");
+                Logger.Info("Loading default settings.");
                 Settings = new Settings();
             }
+            Logger.Debug("Save loaded settings.");
             Save();
         }
 

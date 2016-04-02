@@ -28,6 +28,7 @@ using Tera.Data;
 using Tera.Game;
 using Tera.Game.Messages;
 using Tera.Sniffing;
+using Nicenis.ComponentModel;
 
 namespace CasualMeter
 {
@@ -58,7 +59,7 @@ namespace CasualMeter
         public Server Server
         {
             get { return GetProperty<Server>(); }
-            set { SetProperty(value); }
+            set { SetProperty(value, onChanged: OnServerChanged); }
         }
 
         public ThreadSafeObservableCollection<DamageTracker> ArchivedDamageTrackers
@@ -239,7 +240,6 @@ namespace CasualMeter
         {
             Server = server;
             _teraData = BasicTeraData.DataForRegion(server.Region);
-            BasicTeraData.Servers.Region = server.Region;
             _entityTracker = new EntityTracker(_teraData.NpcDatabase);
             _playerTracker = new PlayerTracker(_entityTracker,BasicTeraData.Servers);
             _messageFactory = new MessageFactory(_teraData.OpCodeNamer);
@@ -252,6 +252,25 @@ namespace CasualMeter
             };
 
             Logger.Info($"Connected to server {server.Name}.");
+        }
+
+        private void OnServerChanged(IPropertyValueChangedEventArgs<Server> valueChanged)
+        {
+            if (valueChanged.NewValue != null)
+            {
+                _teraData = BasicTeraData.DataForRegion(valueChanged.NewValue.Region);
+                BasicTeraData.Servers.Region = valueChanged.NewValue.Region;
+                _entityTracker = new EntityTracker(_teraData.NpcDatabase);
+                _playerTracker = new PlayerTracker(_entityTracker);
+                _messageFactory = new MessageFactory(_teraData.OpCodeNamer);
+                
+                ResetDamageTracker();
+                DamageTracker = DamageTracker ?? new DamageTracker
+                {
+                    OnlyBosses = OnlyBosses,
+                    IgnoreOneshots = IgnoreOneshots
+                };
+            }
         }
 
         private void ResetDamageTracker(ResetPlayerStatsMessage message = null)
@@ -343,12 +362,31 @@ namespace CasualMeter
         private void PasteStats(PastePlayerStatsMessage obj)
         {
             if (DamageTracker == null) return;
+            if (obj == null) throw new ArgumentNullException("obj", "There is no message to paste.");
 
-            var playerStatsSequence = DamageTracker.StatsByUser.OrderByDescending(playerStats => playerStats.Dealt.Damage).TakeWhile(x => x.Dealt.Damage > 0);
+            var playerStatsSequence = obj.Modification(DamageTracker.StatsByUser);
             const int maxLength = 300;
 
-            var sb = new StringBuilder();
-            bool first = true;
+            var sb = new StringBuilder(obj.PreHeading);
+            sb.AppendLine();
+            var isActive = ProcessHelper.Instance.IsTeraActive;
+            if (isActive.HasValue && isActive.Value)
+            {
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
+                //send text input to Tera
+                if (!ProcessHelper.Instance.SendString(obj.PreHeading))
+                    Logger.Warn("Couldn't send text input to Tera. (PreHeader)");
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
+            }
+            sb.AppendLine(obj.Heading);
+            if (isActive.HasValue && isActive.Value)
+            {
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
+                //send text input to Tera
+                if (!ProcessHelper.Instance.SendString(obj.Heading))
+                    Logger.Warn("Couldn't send text input to Tera. (Header)");
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
+            }
 
             string body = SettingsHelper.Instance.Settings.DpsPasteFormat;
             if (body.Contains('@'))
@@ -361,28 +399,25 @@ namespace CasualMeter
             foreach (var playerInfo in playerStatsSequence)
             {
                 var placeHolder = new PlayerStatsFormatter(playerInfo, FormatHelpers.Invariant);
-                var playerText = first ? "" : " | ";
-
-                playerText += placeHolder.Replace(body);
+                var playerText = placeHolder.Replace(obj.Format);
 
                 if (sb.Length + playerText.Length > maxLength)
                     break;
-
-                sb.Append(playerText);
-                first = false;
-            }
             
-            if (sb.Length > 0)
-            {
-                var text = sb.ToString();
-                var isActive = ProcessHelper.Instance.IsTeraActive;
                 if (isActive.HasValue && isActive.Value)
                 {
+                    ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
                     //send text input to Tera
-                    ProcessHelper.Instance.SendString(text);
+                    if (!ProcessHelper.Instance.SendString(playerText))
+                        Logger.Warn("Couldn't send text input to Tera. (PlayerStat)");
+                    ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
                 }
+                sb.AppendLine(playerText);
+            }
+            if (sb.Length > 0)
+            {
                 //copy to clipboard in case user wants to paste outside of Tera
-                Application.Current.Dispatcher.Invoke(() => Clipboard.SetDataObject(text));
+                Application.Current.Dispatcher.Invoke(() => Clipboard.SetDataObject(sb.ToString()));
             }
         }
 

@@ -72,6 +72,12 @@
                        Visibility="{Binding ElementName=ShowPersonalDpsCheckBox, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
         </StackPanel>
-        
+        <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Text="{Binding Received.Heal, Converter={StaticResource LongToStringConverter}}"
+                   Foreground="{StaticResource BrushHeal}"/>
+            <TextBlock Text="{Binding Received.Damage, Converter={StaticResource LongToStringConverter}}"
+                   Foreground="{StaticResource BrushDamage}"/>
+        </StackPanel>-->
+
     </StackPanel>
 </controls:PlayerInfoControl>

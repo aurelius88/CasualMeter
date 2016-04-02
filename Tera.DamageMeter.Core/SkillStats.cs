@@ -35,7 +35,8 @@ namespace Tera.DamageMeter
             if (IsPartyStats) return;
 
             //update stats
-            DamageFraction = _tracker.TotalDealt.Damage == 0 ? 1 : (double)Damage / _tracker.TotalDealt.Damage;
+            long totalDamage = Dealt ? _tracker.TotalDealt.Damage : _tracker.TotalReceived.Damage;
+            DamageFraction = totalDamage == 0 ? 1 : (double)Damage / totalDamage;
             Dps = _tracker.CalculateDps(Damage);
 
             //update personal DPS
@@ -44,6 +45,12 @@ namespace Tera.DamageMeter
             PersonalDps = (firstOrDefault != null && lastOrDefault != null)
                 ? _tracker.CalculateDps(Damage, lastOrDefault.Time - firstOrDefault.Time)
                 : _tracker.CalculateDps(Damage, TimeSpan.Zero);
+        }
+
+        public bool Dealt
+        {
+            get { return GetProperty<bool>(getDefault: () => true); }
+            set { SetProperty(value); }
         }
 
         public long Damage

@@ -6,11 +6,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using NetworkSniffer.Packets;
+using log4net;
+using System.Reflection;
 
 namespace NetworkSniffer
 {
     public class TcpSniffer
     {
+        private static readonly ILog Logger = LogManager.GetLogger(
+            MethodBase.GetCurrentMethod().DeclaringType);
+
         public string TcpLogFile { get; set; }
         private readonly object _lock = new object();
 
@@ -42,12 +47,14 @@ namespace NetworkSniffer
                 bool isInterestingConnection;
                 if (isFirstPacket)
                 {
+                    Logger.Info($"Create new connection: {connectionId}, {tcpPacket.SequenceNumber}");
                     connection = new TcpConnection(connectionId, tcpPacket.SequenceNumber);
                     OnNewConnection(connection);
                     isInterestingConnection = connection.HasSubscribers;
                     if (!isInterestingConnection)
                         return;
                     _connections[connectionId] = connection;
+                    Logger.Info($"Add new connection: {connectionId}");
                     Debug.Assert(tcpPacket.Payload.Count == 0);
                 }
                 else

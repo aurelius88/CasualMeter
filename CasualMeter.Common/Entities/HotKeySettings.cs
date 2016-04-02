@@ -25,15 +25,23 @@ namespace CasualMeter.Common.Entities
         public ModifierKeys ModifierSave { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        [DefaultValue(Key.Insert)]
-        public Key Paste { get; set; }
+        [DefaultValue(Key.F1)]
+        public Key PasteDpsStats { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        [DefaultValue(Key.Delete)]
+        [DefaultValue(Key.F2)]
+        public Key PasteRcvStats { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        [DefaultValue(Key.F3)]
+        public Key PasteHealStats { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        [DefaultValue(Key.F5)]
         public Key Reset { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        [DefaultValue(Key.End)]
+        [DefaultValue(Key.F8)]
         public Key Save { get; set; }
     }
 }
