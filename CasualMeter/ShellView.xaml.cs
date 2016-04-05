@@ -98,7 +98,6 @@ namespace CasualMeter
 
         private void Exit_OnClick(object sender, RoutedEventArgs e)
         {
-            SaveUiSettings();
             Close();
         }
 
@@ -184,5 +183,10 @@ namespace CasualMeter
             }
         }
         #endregion
+
+        private void HeaderDamage_Click(object sender, RoutedEventArgs e)
+        {
+            ShellViewModel.ResetDpsHeader();
+        }
     }
 }

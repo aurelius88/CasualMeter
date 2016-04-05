@@ -33,31 +33,34 @@ namespace CasualMeter.Common.Entities
         [DefaultValue(false)]
         public bool ShowPersonalDps { get; set; }
 
-        [DefaultValue("Damage Done:")]
+        [DefaultValue(false)]
+        public bool ShowHeader { get; set; }
+
+        [DefaultValue("Dps, crit and damage done ({Boss} in {Time}):")]
         public string DpsPreHeader { get; set; }
 
-        [DefaultValue("(Class) Name               | DPS        | Damage     | Damage in %")]
+        [DefaultValue("(Class) Name               | DPS        | Damage in % | Crit in %")]
         public string DpsHeader { get; set; }
 
-        [DefaultValue("{ClassAndName,-26} | {DPS,-10} | {Damage,-10} | {DamagePercent,-10}")]
+        [DefaultValue("{ClassAndName,-26} {DPS,-10} {DamagePercent,-10} Crits: {CritPercent,-10}")]
         public string DpsPasteFormat { get; set; }
 
-        [DefaultValue("Received Damage:")]
+        [DefaultValue("Received damage/dps ({Boss} in {Time}):")]
         public string RcvPreHeader { get; set; }
 
         [DefaultValue("(Class) Name               | Received Dmg | RDPS")]
         public string RcvHeader { get; set; }
 
-        [DefaultValue("{ClassAndName,-26} | -{DamageReceived,-11} | -{RDPS}")]
+        [DefaultValue("{ClassAndName,-26} -{DamageReceived,-11} -{RDPS}")]
         public string RcvPasteFormat { get; set; }
 
-        [DefaultValue("Heal Done:")]
+        [DefaultValue("Heal done/received ({Boss} in {Time}):")]
         public string HealPreHeader { get; set; }
 
         [DefaultValue("(Class) Name               | Heal       | Received Heal")]
         public string HealHeader { get; set; }
 
-        [DefaultValue("{ClassAndName,-26} | {Heal,-10} | {HealReceived,-10}")]
+        [DefaultValue("{ClassAndName,-26} healed: {Heal,-10} received: {HealReceived,-10}")]
         public string HealPasteFormat { get; set; }
 
         [DefaultValue(30)]

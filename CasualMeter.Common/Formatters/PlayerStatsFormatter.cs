@@ -32,6 +32,7 @@ namespace CasualMeter.Common.Formatters
 
             placeHolders.Add(new KeyValuePair<string, object>("Heal", formatHelpers.FormatValue(playerInfo.Dealt.Heal)));
             placeHolders.Add(new KeyValuePair<string, object>("HealReceived", formatHelpers.FormatValue(playerInfo.Received.Heal)));
+            placeHolders.Add(new KeyValuePair<string, object>("HPS", $"{formatHelpers.FormatValue((long)(playerInfo.Dealt.Heal / playerInfo.Tracker.Duration.TotalSeconds)) ?? "NaN"}/s"));
 
             Placeholders = placeHolders.ToDictionary(x => x.Key, y => y.Value);
             FormatProvider = formatHelpers.CultureInfo;

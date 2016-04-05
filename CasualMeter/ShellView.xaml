@@ -204,6 +204,28 @@
                                   HorizontalAlignment="Right"
                                   Margin="0,6,1,0"/>
                     </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,19,0">Activate extra header for output</TextBlock>
+                        <CheckBox Grid.Column="1" x:Name="ShowHeaderCheckBox"
+                                  IsChecked="{Binding ShowHeader}"
+                                  HorizontalAlignment="Right"
+                                  Margin="0,6,1,0"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding HeaderDamage}" 
+                                 ToolTip="Damage Header" Grid.ColumnSpan="2" Margin="0,0,50,0"></TextBox>
+                        <Button Grid.Column="1" x:Name="HeaderDamageButton"
+                                HorizontalAlignment="Right" Click="HeaderDamage_Click" Margin="0,0,10,0" >Reset</Button>
+                    </Grid>
                 </StackPanel>
             </Border>
             <ItemsControl Background="Transparent" Width="{StaticResource Width}"

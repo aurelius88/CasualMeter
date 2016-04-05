@@ -181,6 +181,25 @@ namespace CasualMeter
             }
         }
 
+        public bool ShowHeader
+        {
+            get { return GetProperty(getDefault: () => SettingsHelper.Instance.Settings.ShowHeader); }
+            set { SetProperty(value, onChanged: e => SettingsHelper.Instance.Settings.ShowHeader = value); }
+        }
+
+        public string HeaderDamage
+        {
+            get { return GetProperty(getDefault: () => SettingsHelper.Instance.Settings.DpsHeader); }
+            set { SetProperty(value, onChanged: e => SettingsHelper.Instance.Settings.DpsHeader = value); }
+        }
+
+        public void ResetDpsHeader ()
+        {
+            SettingsHelper.Instance.Settings.DpsHeader = 
+                GetProperty(getDefault: () => SettingsHelper.Instance.Settings.DpsHeader);
+            
+        }
+
         #region Commands
 
         public RelayCommand ToggleIsPinnedCommand
@@ -367,19 +386,26 @@ namespace CasualMeter
             var playerStatsSequence = obj.Modification(DamageTracker.StatsByUser);
             const int maxLength = 300;
 
-            var sb = new StringBuilder(obj.PreHeading);
-            sb.AppendLine();
+            var sb = new StringBuilder();
+
+            // PREHEADER
+            Formatter placeHolder = new DamageTrackerFormatter(DamageTracker, FormatHelpers.Invariant);
+            var preHeaderString = placeHolder.Replace(obj.PreHeading);
+            sb.AppendLine(preHeaderString);
+
             var isActive = ProcessHelper.Instance.IsTeraActive;
             if (isActive.HasValue && isActive.Value)
             {
                 ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
                 //send text input to Tera
-                if (!ProcessHelper.Instance.SendString(obj.PreHeading))
+                if (!ProcessHelper.Instance.SendString(preHeaderString))
                     Logger.Warn("Couldn't send text input to Tera. (PreHeader)");
                 ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
             }
+
+            // HEADER
             sb.AppendLine(obj.Heading);
-            if (isActive.HasValue && isActive.Value)
+            if (isActive.HasValue && isActive.Value && SettingsHelper.Instance.Settings.ShowHeader)
             {
                 ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
                 //send text input to Tera
@@ -388,17 +414,10 @@ namespace CasualMeter
                 ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
             }
 
-            string body = SettingsHelper.Instance.Settings.DpsPasteFormat;
-            if (body.Contains('@'))
-            {
-                var splitter = body.Split(new[] { '@' }, 2);                
-                var placeHolder = new DamageTrackerFormatter(DamageTracker, FormatHelpers.Invariant);
-                sb.Append(placeHolder.Replace(splitter[0]));
-                body = splitter[1];
-            }
+            // PLAYER STATS
             foreach (var playerInfo in playerStatsSequence)
             {
-                var placeHolder = new PlayerStatsFormatter(playerInfo, FormatHelpers.Invariant);
+                placeHolder = new PlayerStatsFormatter(playerInfo, FormatHelpers.Invariant);
                 var playerText = placeHolder.Replace(obj.Format);
 
                 if (sb.Length + playerText.Length > maxLength)
