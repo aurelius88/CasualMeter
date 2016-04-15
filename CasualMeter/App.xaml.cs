@@ -53,7 +53,7 @@ namespace CasualMeter
                 Environment.Exit(0);//application doesn't fully exit without this for some reason
             }
         }
-
+#if !DEBUG
         private static async Task Update()
         {
             Logger.Info("Try to update.");
@@ -85,7 +85,7 @@ namespace CasualMeter
             //    HandleException(e);
             //}
         }
-
+#endif
         private static void HandleException(Exception e)
         {
             if (e == null) return;
