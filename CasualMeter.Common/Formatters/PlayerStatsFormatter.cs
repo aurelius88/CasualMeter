@@ -27,12 +27,12 @@ namespace CasualMeter.Common.Formatters
 
             placeHolders.Add(new KeyValuePair<string, object>("Damage", formatHelpers.FormatValue(playerInfo.Dealt.Damage)));
             placeHolders.Add(new KeyValuePair<string, object>("DPS", $"{formatHelpers.FormatValue(SettingsHelper.Instance.Settings.ShowPersonalDps ? playerInfo.Dealt.PersonalDps : playerInfo.Dealt.Dps)}/s"));
-            placeHolders.Add(new KeyValuePair<string, object>("DamageReceived", formatHelpers.FormatValue(playerInfo.Received.Damage)));
+            placeHolders.Add(new KeyValuePair<string, object>("DamageReceived", formatHelpers.FormatValue(playerInfo.Received.Damage) ?? "0"));
             placeHolders.Add(new KeyValuePair<string, object>("RDPS", $"{formatHelpers.FormatValue(SettingsHelper.Instance.Settings.ShowPersonalDps ? playerInfo.Received.PersonalDps : playerInfo.Received.Dps)}/s"));
 
             placeHolders.Add(new KeyValuePair<string, object>("Heal", formatHelpers.FormatValue(playerInfo.Dealt.Heal)));
             placeHolders.Add(new KeyValuePair<string, object>("HealReceived", formatHelpers.FormatValue(playerInfo.Received.Heal)));
-            placeHolders.Add(new KeyValuePair<string, object>("HPS", $"{formatHelpers.FormatValue((long)(playerInfo.Dealt.Heal / playerInfo.Tracker.Duration.TotalSeconds)) ?? "NaN"}/s"));
+            placeHolders.Add(new KeyValuePair<string, object>("HPS", $"{formatHelpers.FormatValue((long)(playerInfo.Dealt.Heal / (playerInfo.Tracker.Duration.TotalSeconds < 1 ? 1d : playerInfo.Tracker.Duration.TotalSeconds))) ?? "NaN"}/s"));
 
             Placeholders = placeHolders.ToDictionary(x => x.Key, y => y.Value);
             FormatProvider = formatHelpers.CultureInfo;

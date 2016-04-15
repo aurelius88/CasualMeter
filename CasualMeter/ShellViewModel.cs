@@ -415,13 +415,17 @@ namespace CasualMeter
             }
 
             // PLAYER STATS
+            Logger.Debug("player stats=" + playerStatsSequence.Count());
             foreach (var playerInfo in playerStatsSequence)
             {
                 placeHolder = new PlayerStatsFormatter(playerInfo, FormatHelpers.Invariant);
-                var playerText = placeHolder.Replace(obj.Format);
+                string playerText = placeHolder.Replace(obj.Format);
 
-                if (sb.Length + playerText.Length > maxLength)
+                if (playerText.Length > maxLength)
+                {
+                    Logger.Warn("Skip player text, because text length="+playerText.Length+ " exceeds max length="+maxLength+".");
                     break;
+                }
             
                 if (isActive.HasValue && isActive.Value)
                 {

@@ -42,7 +42,7 @@ namespace CasualMeter.Common.Entities
         [DefaultValue("(Class) Name               | DPS        | Damage in % | Crit in %")]
         public string DpsHeader { get; set; }
 
-        [DefaultValue("{ClassAndName,-26} {DPS,-10} {DamagePercent,-10} Crits: {CritPercent,-10}")]
+        [DefaultValue("{ClassAndName,-26} {DPS,-10} {DamagePercent,-8} Crits: {CritPercent,-8}")]
         public string DpsPasteFormat { get; set; }
 
         [DefaultValue("Received damage/dps ({Boss} in {Time}):")]
@@ -57,10 +57,10 @@ namespace CasualMeter.Common.Entities
         [DefaultValue("Heal done/received ({Boss} in {Time}):")]
         public string HealPreHeader { get; set; }
 
-        [DefaultValue("(Class) Name               | Heal       | Received Heal")]
+        [DefaultValue("(Class) Name               | Heal       | Heal/s     | Received Heal")]
         public string HealHeader { get; set; }
 
-        [DefaultValue("{ClassAndName,-26} healed: {Heal,-10} received: {HealReceived,-10}")]
+        [DefaultValue("{ClassAndName,-26} healed: {Heal,-10} hps: {HPS,-10} received: {HealReceived,-10}")]
         public string HealPasteFormat { get; set; }
 
         [DefaultValue(30)]
