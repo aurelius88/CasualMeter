@@ -18,7 +18,9 @@ namespace CasualMeter.Common.Helpers
 
         public static ProcessHelper Instance => Lazy.Value;
 
-        private const UInt32 WM_KEYDOWN = 0x0100;
+        private const uint WM_KEYDOWN = 0x0100;
+        private const uint WM_KEYUP = 0x0101;
+        private const uint WM_CHAR = 0x0102;
 
         [DllImport("user32.dll")]
         static extern bool PostMessage(IntPtr hWnd, UInt32 Msg, int wParam, int lParam);
@@ -60,7 +62,7 @@ namespace CasualMeter.Common.Helpers
             UpdateHotKeys();
         }
 
-        public bool PressKey(Keys key, int delayBefore = 0, int delayAfter = 0)
+        public bool PressKey(Keys key)
         {
             if (TeraWindow == IntPtr.Zero)
             {
@@ -68,13 +70,28 @@ namespace CasualMeter.Common.Helpers
                 return false;
             }
 
-            Thread.Sleep(delayBefore);
             if(PostMessage(TeraWindow, WM_KEYDOWN, (int)key, 0)) {
-                Thread.Sleep(delayAfter);
                 return true;
             }
 
             Logger.Warn(string.Format("Failed to press key {0}", key));
+            return false;
+        }
+
+        public bool ReleaseKey(Keys key)
+        {
+            if (TeraWindow == IntPtr.Zero)
+            {
+                Logger.Warn("Nullpointer of TeraWindow.");
+                return false;
+            }
+
+            if (PostMessage(TeraWindow, WM_KEYUP, (int)key, 0))
+            {
+                return true;
+            }
+
+            Logger.Warn(string.Format("Failed to release key {0}", key));
             return false;
         }
 

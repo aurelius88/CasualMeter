@@ -29,6 +29,7 @@ using Tera.Game;
 using Tera.Game.Messages;
 using Tera.Sniffing;
 using Nicenis.ComponentModel;
+using System.Threading;
 
 namespace CasualMeter
 {
@@ -396,22 +397,36 @@ namespace CasualMeter
             var isActive = ProcessHelper.Instance.IsTeraActive;
             if (isActive.HasValue && isActive.Value)
             {
-                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(1);
+                ProcessHelper.Instance.ReleaseKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(150);
                 //send text input to Tera
                 if (!ProcessHelper.Instance.SendString(preHeaderString))
                     Logger.Warn("Couldn't send text input to Tera. (PreHeader)");
-                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
+                Thread.Sleep(150);
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(1);
+                ProcessHelper.Instance.ReleaseKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(50);
             }
 
             // HEADER
             sb.AppendLine(obj.Heading);
             if (isActive.HasValue && isActive.Value && SettingsHelper.Instance.Settings.ShowHeader)
             {
-                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(1);
+                ProcessHelper.Instance.ReleaseKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(150);
                 //send text input to Tera
                 if (!ProcessHelper.Instance.SendString(obj.Heading))
                     Logger.Warn("Couldn't send text input to Tera. (Header)");
-                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
+                Thread.Sleep(150);
+                ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(1);
+                ProcessHelper.Instance.ReleaseKey(System.Windows.Forms.Keys.Enter);
+                Thread.Sleep(50);
             }
 
             // PLAYER STATS
@@ -429,11 +444,19 @@ namespace CasualMeter
             
                 if (isActive.HasValue && isActive.Value)
                 {
-                    ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 50, 50);
+                    ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter);
+                    Thread.Sleep(1);
+                    ProcessHelper.Instance.ReleaseKey(System.Windows.Forms.Keys.Enter);
+                    Thread.Sleep(150);
                     //send text input to Tera
                     if (!ProcessHelper.Instance.SendString(playerText))
                         Logger.Warn("Couldn't send text input to Tera. (PlayerStat)");
-                    ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter, 750, 50);
+
+                    Thread.Sleep(150);
+                    ProcessHelper.Instance.PressKey(System.Windows.Forms.Keys.Enter);
+                    Thread.Sleep(1);
+                    ProcessHelper.Instance.ReleaseKey(System.Windows.Forms.Keys.Enter);
+                    Thread.Sleep(50);
                 }
                 sb.AppendLine(playerText);
             }
