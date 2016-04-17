@@ -1,3 +1,37 @@
+# CasualMeter with output modification
+This fork of [CasualMeter] modifies the output such that it is printed in multiple lines and tries to format the text in something more readable. I also deactivated the Update-function, so it won't accidently update to the original version. This also means updating has to be done manually.
+
+### Formating
+
+As you will see in the default settings file, there is a placeholder like `{Name,-20}`. This means the placeholder will get at least 20 fix chars aligned to the left (because of that `-`). All chars that are not used are filled by spaces.
+
+For example the name would be `"Mr.X"`. The full string would be:`"Mr.X<- 16 spaces ->"`.
+
+`{Name,20}` therefore would be replaced by `"<- 16 spaces ->Mr.X"`.
+
+#### Placeholders
+
+| Placeholder | Output | Example
+| --- | --- | --- |
+| FullName | Server-Name : Player-Name | Killian : A.Player |
+| Name | Player-Name | A.Player |
+| Class | Class-Name | Warrior |
+| ClassAndName | (Class-Name) Player-Name | (Warrior) A.Player |
+| NameAndClass | Player-Name (Class-Name) | A.Player (Warrior) |
+| Crits | CritCount | 34 |
+| Hits | HitCount | 68 |
+| DamagePercent | Damage-in-percent% | 74% |
+| CritPercent | Crit-in-percent% | 50% |
+| Damage | Damage | 240k |
+| DPS | DPS/s | 29k/s |
+| DamageReceived | Received-Damage | 4k |
+| RDPS | Received-DPS/s | 800/s |
+| Heal | Healed | 0 |
+| HealReceived | Received-Heal | 6k |
+| HPS | HPS/s | 0/s |
+
+Original text of CasualMeter:
+----
 # CasualMeter
 [CasualMeter] is a free open-source DPS meter for TERA based off [TeraDamageMeter].  The majority of the new stuff is UI and UX improvements, but there are some bug fixes as well.  This [fork] is also worth mentioning since I borrowed the dps paste and settings storage from there.
 
