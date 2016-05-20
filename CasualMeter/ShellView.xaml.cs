@@ -184,6 +184,16 @@ namespace CasualMeter
         }
         #endregion
 
+        private void SettingsDir_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start(SettingsHelper.Instance.GetSettingsPath());
+        }
+
+        private void ExportsDir_OnClick(object sender, RoutedEventArgs e)
+        {
+            Process.Start(SettingsHelper.Instance.GetDocumentsPath());
+        }
+
         private void HeaderDamage_Click(object sender, RoutedEventArgs e)
         {
             ShellViewModel.ResetDpsHeader();

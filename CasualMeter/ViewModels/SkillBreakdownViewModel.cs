@@ -16,6 +16,7 @@ using CasualMeter.Common.UI.ViewModels;
 using Lunyx.Common.UI.Wpf;
 using Nicenis.ComponentModel;
 using Tera.DamageMeter;
+using Tera.Game;
 
 namespace CasualMeter.ViewModels
 {
@@ -144,8 +145,8 @@ namespace CasualMeter.ViewModels
                 }
                 if (AggregatedSkillLogByName.All(asr => !skillResult.IsSameSkillAs(asr)))
                 {
-                    AggregatedSkillLogByName.Add(new AggregatedSkillResult(skillResult.SkillName, skillResult.IsHeal,
-                        AggregationType.Name, SkillLog));
+                    AggregatedSkillLogByName.Add(new AggregatedSkillResult(skillResult.SkillShortName, 
+                        skillResult.IsHeal, AggregationType.Name, SkillLog));
                 }
             }
         }

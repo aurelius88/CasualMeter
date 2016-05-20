@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Lunyx.Common.UI.Wpf;
 using Nicenis.ComponentModel;
-using Tera.DamageMeter;
+using Tera.Game;
 
 namespace CasualMeter.Common.Entities
 {
@@ -36,7 +36,7 @@ namespace CasualMeter.Common.Entities
                 case AggregationType.Id:
                     return skillResult.SkillNameDetailed;
                 case AggregationType.Name:
-                    return skillResult.SkillName;
+                    return skillResult.SkillShortName;
                 default:
                     return string.Empty;
             }
@@ -78,14 +78,17 @@ namespace CasualMeter.Common.Entities
         private IEnumerable<SkillResult> FilteredSkillLog =>
             from skill in SkillLog
             where (skill.IsSameSkillAs(this) && skill.Amount > 0) ||
-                  (skill.IsSameSkillAs(this) && skill.Amount == 0 && SkillLog.All(s => s.IsSameSkillAs(skill, AggregationType) && s.Amount == 0))
+                  (skill.IsSameSkillAs(this) && skill.Amount == 0 && !SkillLog.Any(s => s.IsSameSkillAs(skill, AggregationType) && s.Amount != 0))
             select skill;
 
         public AggregationType AggregationType { get; }
         public string DisplayName { get; }
         public bool IsHeal { get; }
         public long Amount => FilteredSkillLog.Sum(s => s.Amount);
+        public long Damage => FilteredSkillLog.Sum(s => s.Damage);
         public int Hits => FilteredSkillLog.Count();
+        public int SkillId => FilteredSkillLog.Any() ? FilteredSkillLog.ElementAt(0).SkillId : 0;
+        public NpcInfo NpcInfo => FilteredSkillLog.Any() ? FilteredSkillLog.ElementAt(0).Skill?.NpcInfo:null;
         public double CritRate => (double) FilteredSkillLog.Count(g => g.IsCritical)/FilteredSkillLog.Count();
         public long HighestCrit => FilteredSkillLog.Any(g => g.IsCritical) ? FilteredSkillLog.Where(g => g.IsCritical).Max(g => g.Amount) : 0;
         public long LowestCrit => FilteredSkillLog.Any(g => g.IsCritical) ? FilteredSkillLog.Where(g => g.IsCritical).Min(g => g.Amount) : 0;
