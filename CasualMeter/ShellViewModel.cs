@@ -630,7 +630,7 @@ namespace CasualMeter
             Logger.Debug("player stats=" + playerStatsSequence.Count());
             foreach (var playerInfo in playerStatsSequence)
             {
-                placeHolder = new PlayerStatsFormatter(playerInfo, FormatHelpers.Invariant);
+                placeHolder = new PlayerStatsFormatter(playerInfo, _teraData, FormatHelpers.Invariant);
                 string playerText = placeHolder.Replace(obj.Format);
 
                 if (playerText.Length > maxLength)
