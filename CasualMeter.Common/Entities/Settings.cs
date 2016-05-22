@@ -100,7 +100,7 @@ namespace CasualMeter.Common.Entities
         [DefaultValue(false)]
         public bool ExcelExport { get; set; }
 
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         public bool SiteExport { get; set; }
 
         //since you can't set DefaultValueAttribute on objects
