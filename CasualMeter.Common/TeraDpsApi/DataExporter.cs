@@ -8,6 +8,7 @@ using Tera.Game.Messages;
 using Newtonsoft.Json;
 using Tera.Game;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using CasualMeter.Common.Entities;
 using CasualMeter.Common.Helpers;
@@ -129,7 +130,7 @@ namespace CasualMeter.Common.TeraDpsApi
                 {
                     collection.Add(skill);
                     if (aggregated.All(asr => !skill.IsSameSkillAs(asr)))
-                        aggregated.Add(new AggregatedSkillResult(skill.SkillName,skill.IsHeal,AggregationType.Name, collection));
+                        aggregated.Add(new AggregatedSkillResult(skill.SkillShortName,skill.IsHeal,AggregationType.Name, collection));
                 }
                 foreach (var skill in aggregated)
                 {
@@ -197,6 +198,7 @@ namespace CasualMeter.Common.TeraDpsApi
                 {
                     Debug.WriteLine(e.Message);
                     Debug.WriteLine(e.StackTrace);
+                    Thread.Sleep(10000);
                 }
             }
         }
