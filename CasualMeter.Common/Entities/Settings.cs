@@ -51,7 +51,7 @@ namespace CasualMeter.Common.Entities
         [DefaultValue("(Class) Name               | Received Dmg | RDPS")]
         public string RcvHeader { get; set; }
 
-        [DefaultValue("{ClassAndName,-26} -{DamageReceived,-11} -{RDPS}")]
+        [DefaultValue("{ClassAndName,-26} -{DamageReceived,-11} -{RDPS,-9} †{Death,-3} ({DeathDuration})")]
         public string RcvPasteFormat { get; set; }
 
         [DefaultValue("Heal done/received ({Boss} in {Time}):")]
