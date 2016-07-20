@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
-using System.Net;
 using CasualMeter.Common.Entities;
-using CasualMeter.Common.JsonConverters;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Tera.Data;
 using Tera.Game;
 
@@ -21,6 +17,7 @@ namespace CasualMeter.Common.Helpers
         
         public static SettingsHelper Instance => Lazy.Value;
 
+        private static readonly string TempFolderPath = Path.Combine(Path.GetTempPath(), "CasualMeter");
         private static readonly string DocumentsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CasualMeter");
         private static readonly string SettingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CasualMeter");
         private static readonly string ConfigFilePath = Path.Combine(SettingsPath, "settings.json");
@@ -28,6 +25,7 @@ namespace CasualMeter.Common.Helpers
         private readonly JsonSerializerSettings _jsonSerializerSettings ;
 
         public Settings Settings { get; set; }
+        public string Version { get; set; } = "debug";
 
         private SettingsHelper()
         {
@@ -37,7 +35,7 @@ namespace CasualMeter.Common.Helpers
             _jsonSerializerSettings = new JsonSerializerSettings {DefaultValueHandling = DefaultValueHandling.Populate};
 
             Load();
-            BasicTeraData = new BasicTeraData(SettingsPath,Settings.Language);
+            BasicTeraData = new BasicTeraData(SettingsPath, Settings.Language, Settings.DetectBosses);
             LoadClassIcons();
         }
 
@@ -96,6 +94,11 @@ namespace CasualMeter.Common.Helpers
         public string GetDocumentsPath()
         {
             return DocumentsPath;
+        }
+
+        public string GetTempFolderPath()
+        {
+            return TempFolderPath;
         }
     }
 }

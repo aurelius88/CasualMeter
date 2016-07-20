@@ -63,7 +63,8 @@ namespace CasualMeter
                     Logger.Info("Checking for updates.");
                     if (mgr.IsInstalledApp)
                     {
-                        Logger.Info($"Current Version: v{mgr.CurrentlyInstalledVersion()}");
+                        SettingsHelper.Instance.Version = $"v{mgr.CurrentlyInstalledVersion()}";
+                        Logger.Info($"Current Version: {SettingsHelper.Instance.Version}");
                         var updates = await mgr.CheckForUpdate();
                         if (updates.ReleasesToApply.Any())
                         {

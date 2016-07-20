@@ -56,7 +56,7 @@
             </CollectionViewSource>
         </Grid.Resources>
         <tb:TaskbarIcon IconSource="Resources/CasualMeter.ico"
-                        ToolTipText="Casual Meter"
+                        ToolTipText="{Binding ApplicationFullName}"
                         ContextMenu="{StaticResource MainMenu}"
                         DoubleClickCommand="{Binding ToggleIsPinnedCommand}">
         </tb:TaskbarIcon>
@@ -160,6 +160,17 @@
                         <TextBlock Grid.Column="0">Count Only Bosses</TextBlock>
                         <CheckBox Grid.Column="1" x:Name="OnlyBossesCheckBox"
                                   IsChecked="{Binding OnlyBosses}"
+                                  HorizontalAlignment="Right"
+                                  Margin="0,6,1,0"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0">Detect Bosses via HP bar (ignore db)</TextBlock>
+                        <CheckBox Grid.Column="1" x:Name="DetectBossesCheckBox"
+                                  IsChecked="{Binding DetectBosses}"
                                   HorizontalAlignment="Right"
                                   Margin="0,6,1,0"/>
                     </Grid>
@@ -322,7 +333,7 @@
                                       ItemsSource="{Binding Source={StaticResource SavedEncountersView}}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource EncounterButtonStyle}" ToolTip="{Binding Path=Name}">
+                                    <Button Style="{StaticResource EncounterButtonStyle}" ToolTip="{Binding Path=PrimaryTarget.Info.Name}">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Click">
                                                 <i:InvokeCommandAction Command="{Binding ShellViewModel.LoadEncounterCommand, RelativeSource={RelativeSource AncestorType={x:Type controls:CasualMeterWindow}}}"

@@ -10,6 +10,7 @@ using Tera.Game;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using CasualMeter.Common.Conductors.Messages;
 using CasualMeter.Common.Entities;
 using CasualMeter.Common.Helpers;
 using Lunyx.Common.UI.Wpf;
@@ -19,25 +20,28 @@ namespace CasualMeter.Common.TeraDpsApi
 {
     public static class DataExporter
     {
-        public static void ToTeraDpsApi(SDespawnNpc despawnNpc, DamageTracker damageTracker, EntityTracker entityTracker, TeraData teraData)
+        public static void ToTeraDpsApi(ExportType exportType, DamageTracker damageTracker, TeraData teraData)
         {
-            if (!despawnNpc.Dead) return;
-            var entity = entityTracker.GetOrPlaceholder(despawnNpc.Npc) as NpcEntity;
+            if (exportType == ExportType.None) return;
+
+            //if we want to upload, primary target must be dead
+            if (exportType.HasFlag(ExportType.Upload) && !damageTracker.IsPrimaryTargetDead)
+                return;
+
+            var exportToExcel = (exportType & (ExportType.Excel | ExportType.ExcelTemp)) != 0;
+            //if we're not exporting to excel and credentials aren't fully entered, return
+            if (!exportToExcel
+                && (string.IsNullOrEmpty(SettingsHelper.Instance.Settings.TeraDpsToken)
+                    || string.IsNullOrEmpty(SettingsHelper.Instance.Settings.TeraDpsUser)))
+                return;
+
+            //ignore if not a boss
+            var entity = damageTracker.PrimaryTarget;
             if (!(entity?.Info.Boss ?? false)) return;
 
-            if (!SettingsHelper.Instance.Settings.ExcelExport && 
-                (string.IsNullOrEmpty(SettingsHelper.Instance.Settings.TeraDpsToken) 
-                    || string.IsNullOrEmpty(SettingsHelper.Instance.Settings.TeraDpsUser)
-                    || !SettingsHelper.Instance.Settings.SiteExport)
-                )
-            {
-                return;
-            }
-
-
             var abnormals = damageTracker.Abnormals;
-            bool timedEncounter = false;
 
+            bool timedEncounter = false;
             //Nightmare desolarus
             if (entity.Info.HuntingZoneId == 759 && entity.Info.TemplateId == 1003)
             {
@@ -66,6 +70,7 @@ namespace CasualMeter.Common.TeraDpsApi
             var partyDps = TimeSpan.TicksPerSecond * totaldamage / interval;
             var teradpsData = new EncounterBase
             {
+                encounterDateTime = damageTracker.FirstAttack?.Date.ToUniversalTime() ?? DateTime.UtcNow,
                 areaId = entity.Info.HuntingZoneId + "",
                 bossId = entity.Info.TemplateId + "",
                 fightDuration = seconds + "",
@@ -153,11 +158,12 @@ namespace CasualMeter.Common.TeraDpsApi
                 teradpsData.members.Add(teradpsUser);
             }
 
-            if (SettingsHelper.Instance.Settings.ExcelExport)
-            {
-                Task.Run(() => ExcelExport.ExcelSave(teradpsData, teraData));
-            }
-            if (string.IsNullOrEmpty(SettingsHelper.Instance.Settings.TeraDpsToken) || string.IsNullOrEmpty(SettingsHelper.Instance.Settings.TeraDpsUser) || !SettingsHelper.Instance.Settings.SiteExport) return;
+            //export to excel if specified
+            if (exportToExcel) Task.Run(() => ExcelExport.ExcelSave(exportType, teradpsData, teraData));
+
+            //return if we don't need to upload
+            if (!exportType.HasFlag(ExportType.Upload)) return;
+
             /*
               Validation, without that, the server cpu will be burning \o 
             */
@@ -167,17 +173,18 @@ namespace CasualMeter.Common.TeraDpsApi
                 areaId != 467 &&
                 areaId != 767 &&
                 areaId != 768 &&
+                areaId != 470 &&
                 areaId != 468
                 )
             {
                 return;
             }
 
-            if (int.Parse(teradpsData.partyDps) < 2000000)
+            if (int.Parse(teradpsData.partyDps) < 2000000 && areaId != 468)
             {
                 return;
             }
-            string json = JsonConvert.SerializeObject(teradpsData, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            var json = JsonConvert.SerializeObject(teradpsData, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             Task.Run(() => Send(entity, json, 3));
         }
 
